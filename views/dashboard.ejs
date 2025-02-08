@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPMS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-8">
+                <a href="/dashboard" class="font-bold">Dashboard</a>
+                <a href="/requests">Duty Requests</a>
+                <a href="/payroll">Payroll</a>
+                <a href="/department">Department</a>
+                <a href="/extras">Resources</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">2</span>
+                </div>
+                <div class="relative">
+                    <i class="fas fa-envelope text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                </div>
+                <img src="/images/profile.jpg" alt="Profile" class="w-8 h-8 rounded-full">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6">
+        <!-- Officer Profile Section -->
+        <div class="bg-blue-900 rounded-lg p-6 text-white mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <img src="/images/profile.jpg" alt="Officer Profile" class="w-16 h-16 rounded-full">
+                    <div>
+                        <h2 class="text-2xl font-bold"><%= user.profile.first_name %> <%= user.profile.last_name %></h2>
+                        <p class="text-blue-200">Badge #<%= user.profile.badge_number %> | <%= user.profile.rank %></p>
+                    </div>
+                </div>
+                <button class="bg-yellow-400 text-blue-900 px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300">
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-6 gap-4 mb-8">
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-calendar-plus mb-2 text-blue-900"></i>
+                <p>Request Leave</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-tasks mb-2 text-blue-900"></i>
+                <p>Duty Schedule</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-file-alt mb-2 text-blue-900"></i>
+                <p>File Report</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-money-check-alt mb-2 text-blue-900"></i>
+                <p>View Payslip</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-user-edit mb-2 text-blue-900"></i>
+                <p>Update Profile</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+                <i class="fas fa-calendar-week mb-2 text-blue-900"></i>
+                <p>Events</p>
+            </button>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div>
+                <!-- Duty Clock-in Section -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Duty Clock-in</h3>
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="text-sm text-gray-600 mb-2">
+                        <p>Date: <%= new Date().toLocaleDateString() %></p>
+                        <p>Time: <%= new Date().toLocaleTimeString() %></p>
+                    </div>
+                    <button class="w-full bg-yellow-400 text-blue-900 py-2 rounded font-semibold hover:bg-yellow-300">
+                        Click to Clock In
+                    </button>
+                </div>
+
+                <!-- Announcements Section -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Announcements</h3>
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded">
+                            <p class="font-semibold">Department Meeting</p>
+                            <p class="text-sm text-gray-600">Scheduled for tomorrow at 9:00 AM</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded">
+                            <p class="font-semibold">New Protocol Update</p>
+                            <p class="text-sm text-gray-600">Review the updated safety protocols</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded">
+                            <p class="font-semibold">Training Session</p>
+                            <p class="text-sm text-gray-600">Cybercrime workshop next week</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Tasks Section -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Assigned Tasks</h3>
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-3">
+                            <span>Complete incident report #2847</span>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-3">
+                            <span>Review case files for Court</span>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-3">
+                            <span>Submit monthly patrol report</span>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-3">
+                            <span>Update vehicle maintenance log</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Balance Section -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold">Available Leave Days</h3>
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span>Annual Leave</span>
+                            <div class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-900 h-2.5 rounded-full" style="width: 70%"></div>
+                            </div>
+                            <span>14 of 20 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Sick Leave</span>
+                            <div class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-900 h-2.5 rounded-full" style="width: 90%"></div>
+                            </div>
+                            <span>9 of 10 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Casual Leave</span>
+                            <div class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-900 h-2.5 rounded-full" style="width: 40%"></div>
+                            </div>
+                            <span>4 of 10 days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
