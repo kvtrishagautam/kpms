@@ -51,25 +51,55 @@
         </thead>
         <tbody>
             <% leaves.forEach(leave => { %>
-                <tr>
+                <tr id="leave-<%= leave.user_id %>">
                     <td><%= leave.user_id %></td>
                     <td><%= leave.profiles.first_name %></td>
-                    <td><%= leave.start_day %></td>
-                    <td><%= leave.end_day %></td>
+                    <td><%= leave.start_date %></td>
+                    <td><%= leave.end_date %></td>
                     <td><%= leave.reason %></td>
                     <td class="action-buttons">
-                        <form action="/approve-leave" method="POST" style="display:inline;">
-                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
-                            <button type="submit" class="approve-btn">Approve</button>
-                        </form>
-                        <form action="/reject-leave" method="POST" style="display:inline;">
-                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
-                            <button type="submit" class="reject-btn">Reject</button>
-                        </form>
+                        <button 
+                            class="approve-btn" 
+                            onclick="updateLeaveStatus('<%= leave.user_id %>', 'approved')">
+                            Approve
+                        </button>
+                        <button 
+                            class="reject-btn" 
+                            onclick="updateLeaveStatus('<%= leave.user_id %>', 'rejected')">
+                            Reject
+                        </button>
                     </td>
                 </tr>
             <% }) %>
         </tbody>
     </table>
+
+    <script>
+        async function updateLeaveStatus(userId, status) {
+    try {
+        const response = await fetch('/admin/dashboard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId, status }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Remove the row from the table
+            document.getElementById(`leave-${userId}`).remove();
+            alert(result.message);
+        } else {
+            alert(result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the leave status.');
+    }
+}
+
+    </script>
 </body>
 </html>

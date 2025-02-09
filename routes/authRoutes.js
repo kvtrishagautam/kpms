@@ -5,7 +5,7 @@ const {
     getLoginPage, 
     register, 
     login, 
-    logout,adminDashboard,setPendingLeaves
+    logout,updatePendingLeaves,setPendingLeaves
 } = require('../controllers/authController');
 
 // GET routes
@@ -18,7 +18,8 @@ router.post('/register', register);
 router.post('/login', login);
 
 //admin
-router.get('/admin/dashboard', adminDashboard);
-router.post('/admin/dashboard', setPendingLeaves);
+// router.get('/admin/dashboard', adminDashboard);
+router.get('/admin/dashboard', setPendingLeaves);
+router.post('/admin/dashboard', updatePendingLeaves);
 
 module.exports = router;

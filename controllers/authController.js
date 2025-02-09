@@ -142,93 +142,50 @@ login: async (req, res) => {
 
   console.log(data);
   res.render('admin/dashboard', { leaves: data });
-},
-    setPendingLeaves: async (req, res) => {
-      const { value: leaveId, action } = req.body;  // Get required values from request
+}, setPendingLeaves: async (req, res) => {
+  const { data, error } = await supabase
+      .from('leave_applications')
+      .select(`
+          user_id,
+          start_date,
+          end_date,
+          reason,
+          profiles ( first_name )
+      `)
+      .eq('status', 'pending');
 
-      if (!leaveId || !action) {
-          return res.status(400).json({
-              success: false,
-              message: 'Leave ID and action are required'
-          });
+  if (error) {
+      console.error(error);
+      return res.status(500).send('An error occurred while fetching leave applications.');
+  }
+
+  res.render('admin/dashboard', { leaves: data });
+},
+updatePendingLeaves: async (req, res) => {
+
+  const { user_id, status } = req.body;
+  try {
+
+      console.log(user_id);
+
+      const { error } = await supabase
+          .from('leave_applications')
+          .update({ status })
+          .eq('user_id', user_id);
+
+      if (error) {
+          console.error(error);
+          return res.status(500).json({ error: 'Failed to update leave status.' });
       }
-  
-      // Validate action value
-      const validActions = ['approved', 'rejected'];
-      if (!validActions.includes(action)) {
-          return res.status(400).json({
-              success: false,
-              message: 'Invalid action. Must be either "approved" or "rejected"'
-          });
-      }
-  
-      try {
-          // Fetch the leave application to ensure it exists
-          const { data: leave, error: fetchError } = await supabase
-              .from('leave_applications')
-              .select(`
-                  id,
-                  leave_type,
-                  start_date,
-                  end_date,
-                  duration,
-                  resumption_date,
-                  reason,
-                  handover_doc,
-                  status,
-                  user_id
-              `)
-              .eq('id', leaveId)
-              .single();
-  
-          if (fetchError) {
-              console.error('Error fetching leave application:', fetchError);
-              return res.status(500).json({
-                  success: false,
-                  message: 'Error fetching leave application'
-              });
-          }
-  
-          if (!leave) {
-              return res.status(404).json({
-                  success: false,
-                  message: 'Leave application not found'
-              });
-          }
-  
-          // Update leave status
-          const { data, error: updateError } = await supabase
-              .from('leave_applications')
-              .update({
-                  status: action,
-                  updated_at: new Date().toISOString()
-              })
-              .eq('id', leaveId)
-              .select();
-  
-          if (updateError) {
-              console.error('Error updating leave status:', updateError);
-              return res.status(500).json({
-                  success: false,
-                  message: 'Error updating leave status'
-              });
-          }
-  
-          // Send response
-          return res.status(200).json({
-              success: true,
-              message: `Leave request has been ${action}`,
-              data: data[0]
-          });
-  
-      } catch (error) {
-          console.error('Error updating leave status:', error);
-          return res.status(500).json({
-              success: false,
-              message: 'An error occurred while updating leave status',
-              error: error.message
-          });
-        }}}
-  
+
+      res.json({ message: `Leave status updated to ${status}.` });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while updating the leave status.' });
+  }
+}
+,
+   
+  }
 
 module.exports = authController;
