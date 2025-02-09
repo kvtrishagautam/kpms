@@ -109,14 +109,39 @@ login: async (req, res) => {
             res.redirect('/dashboard');
         }
     },
-    adminDashboard:async (req, res) => {
+    adminDashboard: async (req, res) => {
       const { data, error } = await supabase
-    .from('leave_applications')
-    .select('user_id')
-    .eq('status', 'pending');
-    console.log(data)
-    
-  res.render('admin/dashboard', { leaves: data});
+          .from('leave_applications')
+          .select('user_id, start_date, end_date, reason') // Fetch additional fields
+          .eq('status', 'pending');
+  
+      if (error) {
+          console.error(error);
+          return res.status(500).send('An error occurred while fetching leave applications.');
+      }
+  
+      console.log(data);
+      res.render('admin/dashboard', { leaves: data });
+  
+},adminDashboard: async (req, res) => {
+  const { data, error } = await supabase
+      .from('leave_applications')
+      .select(`
+          user_id,
+          start_date,
+          end_date,
+          reason,
+          profiles ( first_name )
+      `)
+      .eq('status', 'pending');
+
+  if (error) {
+      console.error(error);
+      return res.status(500).send('An error occurred while fetching leave applications.');
+  }
+
+  console.log(data);
+  res.render('admin/dashboard', { leaves: data });
 },
     setPendingLeaves: async (req, res) => {
       const { value: leaveId, action } = req.body;  // Get required values from request

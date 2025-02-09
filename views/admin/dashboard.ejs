@@ -1,223 +1,75 @@
+<!-- views/admin/dashboard.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Requests Dashboard</title>
+    <title>Admin Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
         }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        th {
+            background-color: #f4f4f4;
         }
-
-        .dashboard-title {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .leave-requests {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .leave-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .leave-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .applicant-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .leave-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .detail-label {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .detail-value {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .actions {
+        .action-buttons {
             display: flex;
             gap: 10px;
-            justify-content: flex-end;
-            align-items: center;
         }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
+        .approve-btn, .reject-btn {
+            padding: 5px 10px;
             border: none;
+            color: white;
             cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
         }
-
-        .btn-view {
-            background-color: #3498db;
-            color: white;
+        .approve-btn {
+            background-color: green;
         }
-
-        .btn-approve {
-            background-color: #2ecc71;
-            color: white;
-        }
-
-        .btn-reject {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .no-requests {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 8px;
-            color: #666;
+        .reject-btn {
+            background-color: red;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <h1 class="dashboard-title">Leave Requests Dashboard</h1>
-        
-        <div class="leave-requests">
-            <% if (leaves && leaves.length > 0) { %>
-                <% leaves.forEach(leave => { %>
-                    <div class="leave-card" data-leave-id="<%= leave.leave_id %>">
-                        <div class="leave-header">
-                            <span class="applicant-name"><%= leave.user_name %></span>
-                            <span class="leave-type"><%= leave.leave_type %></span>
-                        </div>
-                        
-                        <div class="leave-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Start Date</span>
-                                <span class="detail-value"><%= new Date(leave.start_date).toLocaleDateString() %></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">End Date</span>
-                                <span class="detail-value"><%= new Date(leave.end_date).toLocaleDateString() %></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Duration</span>
-                                <span class="detail-value">
-                                    <%= Math.ceil((new Date(leave.end_date) - new Date(leave.start_date)) / (1000 * 60 * 60 * 24)) %> days
-                                </span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Reason</span>
-                                <span class="detail-value"><%= leave.reason %></span>
-                            </div>
-                        </div>
-
-                        <div class="actions">
-                            <button class="btn btn-view" onclick="viewDetails('<%= leave.leave_id %>')">
-                                View Details
-                            </button>
-                            <button class="btn btn-approve" onclick="updateLeaveStatus('<%= leave.leave_id %>', 'approved')">
-                                Approve
-                            </button>
-                            <button class="btn btn-reject" onclick="updateLeaveStatus('<%= leave.leave_id %>', 'rejected')">
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <div class="no-requests">
-                    <h2>No pending leave requests</h2>
-                </div>
-            <% } %>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        function viewDetails(leaveId) {
-            window.location.href = `/admin/leave/${leaveId}`;
-        }
-
-        function updateLeaveStatus(leaveId, action) {
-            if (!confirm(`Are you sure you want to ${action} this leave request?`)) {
-                return;
-            }
-
-            $.ajax({
-                url: '/admin/leave/update-status',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ leaveId, action }),
-                success: function(response) {
-                    if (response.success) {
-                        // Remove the card with animation
-                        $(`[data-leave-id="${leaveId}"]`).fadeOut(400, function() {
-                            $(this).remove();
-                            
-                            // Check if there are any remaining leave requests
-                            if ($('.leave-card').length === 0) {
-                                $('.leave-requests').html(`
-                                    <div class="no-requests">
-                                        <h2>No pending leave requests</h2>
-                                    </div>
-                                `);
-                            }
-                        });
-                        
-                        alert(`Leave request ${action} successfully`);
-                    } else {
-                        alert('Failed to update leave status: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('Error updating leave status. Please try again.');
-                    console.error('Error:', error);
-                }
-            });
-        }
-    </script>
+    <h1>Leave Applications</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Start Day</th>
+                <th>End Day</th>
+                <th>Reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% leaves.forEach(leave => { %>
+                <tr>
+                    <td><%= leave.user_id %></td>
+                    <td><%= leave.profiles.first_name %></td>
+                    <td><%= leave.start_day %></td>
+                    <td><%= leave.end_day %></td>
+                    <td><%= leave.reason %></td>
+                    <td class="action-buttons">
+                        <form action="/approve-leave" method="POST" style="display:inline;">
+                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
+                            <button type="submit" class="approve-btn">Approve</button>
+                        </form>
+                        <form action="/reject-leave" method="POST" style="display:inline;">
+                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
+                            <button type="submit" class="reject-btn">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
 </body>
+</html>
