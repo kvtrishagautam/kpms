@@ -6,6 +6,7 @@
     <title>KPMS Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="images/1123.jpeg" type="image/x-icon">
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -28,7 +29,7 @@
                     <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
                 </div>
                 <img src="/images/prof.webp" alt="Profile" class="w-8 h-8 rounded-full " style="color: white;">
-                <div class="logout">Logout</div>
+                <a href="#" onclick="confirmLogout()" class="logout-btn">Logout</a>
             </div>
         </div>
     </nav>
@@ -41,8 +42,8 @@
                 <div class="flex items-center space-x-4">
                     <img src="/images/prof.webp" alt="Officer Profile" class="w-16 h-16 rounded-full">
                     <div>
-                        <h2 class="text-2xl font-bold"><%= user.profile.first_name %> <%= user.profile.last_name %></h2>
-                        <p class="text-blue-200">Badge #<%= user.profile.badge_number %> | <%= user.profile.rank %></p>
+                        <h2 class="text-2xl font-bold"><%= user.profile.first_name %></h2>
+                        <p class="text-blue-200">Badge #<%= user.profile.last_name %>  <%= user.profile.rank %></p>
                     </div>
                 </div>
                 <button class="bg-yellow-400 text-blue-900 px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300">
@@ -292,5 +293,12 @@ document.getElementById('clockButton').addEventListener('click', function () {
             </div>
         </div>
     </div>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/auth/logout"; // Redirect if confirmed
+            }
+        }
+    </script>
 </body>
 </html>

@@ -100,16 +100,28 @@ login: async (req, res) => {
 },
 
 
-    logout: async (req, res) => {
-        try {
-            await supabase.auth.signOut();
-            req.session.destroy();
+logout: async (req, res) => {
+    try {
+        // Destroy session
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Error destroying session:", err);
+                return res.redirect('/dashboard'); // If error, stay on dashboard
+            }
+
+            // Clear cookies (if used for authentication)
+            res.clearCookie('connect.sid'); // Default session cookie name in Express
+
+            // Redirect to login page
             res.redirect('/login');
-        } catch (error) {
-            res.redirect('/dashboard');
-        }
-    },
-    adminDashboard: async (req, res) => {
+        });
+    } catch (error) {
+        console.error("Error in logout:", error);
+        res.redirect('/dashboard'); // Fallback in case of error
+    }
+},
+
+    adminDashboard:async (req, res) => {
       const { data, error } = await supabase
           .from('leave_applications')
           .select('user_id, start_date, end_date, reason') // Fetch additional fields
