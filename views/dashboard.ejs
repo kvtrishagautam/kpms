@@ -12,11 +12,11 @@
     <nav class="bg-blue-900 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-8">
+                <img src="/images/1123.jpeg" class="w-12 h-12 rounded-full ">
                 <a href="/dashboard" class="font-bold">Dashboard</a>
-                <a href="/requests">Duty Requests</a>
+                <a href="/leave/history">Leave History</a>
                 <a href="/payroll">Payroll</a>
-                <a href="/department">Department</a>
-                <a href="/extras">Resources</a>
+                <a href="/departments">Department</a>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="relative">
@@ -27,7 +27,7 @@
                     <i class="fas fa-envelope text-xl"></i>
                     <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
                 </div>
-                <img src="/images/profile.jpg" alt="Profile" class="w-8 h-8 rounded-full">
+                <img src="/images/prof.webp" alt="Profile" class="w-8 h-8 rounded-full " style="color: white;">
                 <div class="logout">Logout</div>
             </div>
         </div>
@@ -39,7 +39,7 @@
         <div class="bg-blue-900 rounded-lg p-6 text-white mb-8">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                    <img src="/images/profile.jpg" alt="Officer Profile" class="w-16 h-16 rounded-full">
+                    <img src="/images/prof.webp" alt="Officer Profile" class="w-16 h-16 rounded-full">
                     <div>
                         <h2 class="text-2xl font-bold"><%= user.profile.first_name %> <%= user.profile.last_name %></h2>
                         <p class="text-blue-200">Badge #<%= user.profile.badge_number %> | <%= user.profile.rank %></p>
@@ -58,9 +58,9 @@
                 <i class="fas fa-calendar-plus mb-2 text-blue-900"></i>
                 <p>Request Leave</p>
             </button>
-            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center" id="request-history">
                 <i class="fas fa-tasks mb-2 text-blue-900"></i>
-                <p>Duty Schedule</p>
+                <p>Leave History</p>
             </button>
             <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
                 <i class="fas fa-file-alt mb-2 text-blue-900"></i>
@@ -202,6 +202,10 @@ document.getElementById('clockButton').addEventListener('click', function () {
         document.getElementById('request-leave').addEventListener('click', function () {
             // Redirect to a new page
             window.location.href = '/leave/apply';
+        });
+        document.getElementById('request-history').addEventListener('click', function () {
+            // Redirect to a new page
+            window.location.href = '/leave/history';
         });
 </script>
                 <!-- Announcements Section -->
