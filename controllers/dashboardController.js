@@ -50,7 +50,10 @@ const dashboardController = {
             //     console.error('Error fetching leave balance:', leaveError);
             // }
 
-            res.render('dashboard', {
+            
+            // <!-- dashboard was renamed to index for deployment purpose -->
+
+            res.render('index', {
                 user: {
                     ...req.session.user,
                     profile
