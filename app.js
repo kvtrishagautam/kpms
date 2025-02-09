@@ -2,35 +2,35 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const app = express();
 require('dotenv').config();
+
+const app = express();
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
-const departmentRoutes = require('./routes/departmentRoutes')
+const departmentRoutes = require('./routes/departmentRoutes');
 
 // Middleware
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
-    secret:'your-secret-key',
+    secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false
 }));
 
-// Use routes - correct way
+// Use routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/', dashboardRoutes)
+app.use('/', dashboardRoutes);
 app.use('/leave', leaveRoutes);
-app.use('/departments',departmentRoutes)
+app.use('/departments', departmentRoutes);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// ✅ Export `app` instead of running `app.listen()`
+module.exports = app;
