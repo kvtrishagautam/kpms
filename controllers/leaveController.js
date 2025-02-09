@@ -107,41 +107,9 @@ const leaveController = {
         }
     },
 
-    getLeaveHistory: async (req, res) => {
-        try {
-            const { data: leaveHistory, error } = await supabase
-                .from('leave_applications')
-                .select(`
-                    *,
-                    leave_types (name),
-                    relief_officer:profiles!relief_officer_id (full_name)
-                `)
-                .eq('user_id', req.session.user.id)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error fetching leave history:', error);
-                throw error;
-            }
-
-            res.render('/', {
-                user: req.session.user,
-                leaveHistory,
-                flashMessage: req.session.flashMessage
-            });
-
-            // Clear flash message after displaying
-            req.session.flashMessage = null;
-
-        } catch (error) {
-            console.error('Error in getLeaveHistory:', error);
-            res.render('leave/history', {
-                user: req.session.user,
-                leaveHistory: [],
-                error: 'Failed to load leave history'
-            });
-        }
-    }
+    getLeaveHistory:(req, res) => {
+        res.render('leave/history', { error: null });
+    },
 };
 
 module.exports = leaveController;

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department - Kochi Police Management System</title>
+    <link rel="stylesheet" href="/css/department.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <header>
+        <h1>Kochi Police Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/departments">Departments</a></li>
+                <li><a href="/employees">Employees</a></li>
+                <li><a href="/reports">Reports</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Employee Management</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name(s)</th>
+                    <th>Dept</th>
+                    <th>Job Title</th>
+                    <th>Start Date</th>
+                    <th>Category</th>
+                    <th>Gender</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% employees.forEach(employee => { %>
+                    <tr>
+                        <td><%= employee.name %></td>
+                        <td><%= employee.dept %></td>
+                        <td><%= employee.jobTitle %></td>
+                        <td><%= employee.startDate %></td>
+                        <td><%= employee.category %></td>
+                        <td><%= employee.gender %></td>
+                        <td>
+                            <a href="/employees/<%= employee.id %>/view">View Profile</a>
+                            <a href="/employees/<%= employee.id %>/edit">Edit Profile</a>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Kochi Police Management System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
