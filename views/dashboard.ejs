@@ -28,6 +28,7 @@
                     <span class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
                 </div>
                 <img src="/images/profile.jpg" alt="Profile" class="w-8 h-8 rounded-full">
+                <div class="logout">Logout</div>
             </div>
         </div>
     </nav>
@@ -53,7 +54,7 @@
         <!-- Quick Actions -->
         <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
         <div class="grid grid-cols-6 gap-4 mb-8">
-            <button class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
+            <button id="request-leave" class="bg-white p-4 rounded-lg shadow hover:shadow-md text-center">
                 <i class="fas fa-calendar-plus mb-2 text-blue-900"></i>
                 <p>Request Leave</p>
             </button>
@@ -84,20 +85,125 @@
             <!-- Left Column -->
             <div>
                 <!-- Duty Clock-in Section -->
-                <div class="bg-white p-6 rounded-lg shadow mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold">Duty Clock-in</h3>
-                        <i class="fas fa-ellipsis-v"></i>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-2">
-                        <p>Date: <%= new Date().toLocaleDateString() %></p>
-                        <p>Time: <%= new Date().toLocaleTimeString() %></p>
-                    </div>
-                    <button class="w-full bg-yellow-400 text-blue-900 py-2 rounded font-semibold hover:bg-yellow-300">
-                        Click to Clock In
-                    </button>
-                </div>
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold">Duty Clock-in</h3>
+        <i class="fas fa-ellipsis-v"></i>
+    </div>
+    <div class="text-sm text-gray-600 mb-2">
+        <p>Date: <%= new Date().toLocaleDateString() %></p>
+        <p>Time: <%= new Date().toLocaleTimeString() %></p>
+        <p id="timeElapsed" class="hidden">Time Elapsed: <span>0:00:00</span></p>
+    </div>
+    <button id="clockButton" class="w-full bg-yellow-400 text-blue-900 py-2 rounded font-semibold hover:bg-yellow-300">
+        Click to Clock In
+    </button>
+</div>
 
+<script>
+let timer;
+let startTime;
+
+function updateTimeElapsed() {
+    const now = new Date();
+    const elapsed = new Date(now - startTime);
+    const hours = elapsed.getUTCHours();
+    const minutes = elapsed.getUTCMinutes();
+    const seconds = elapsed.getUTCSeconds();
+    document.querySelector('#timeElapsed span').textContent = 
+        `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+document.getElementById('clockButton').addEventListener('click', function () {
+            const isClockedIn = this.textContent.includes('Out');
+            const endpoint = isClockedIn ? '/dashboard/clock-out' : '/dashboard/clock-in';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', endpoint, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+
+                    if (isClockedIn) {
+                        // Clock Out
+                        document.getElementById('clockButton').textContent = 'Click to Clock In';
+                        document.getElementById('clockButton').classList.remove('bg-red-400');
+                        document.getElementById('clockButton').classList.add('bg-yellow-400');
+                        document.getElementById('timeElapsed').classList.add('hidden');
+                        clearInterval(timer);
+
+                        alert(`Successfully clocked out! Total hours worked: ${data.hoursWorked}`);
+                    } else {
+                        // Clock In
+                        document.getElementById('clockButton').textContent = 'Clock Out';
+                        document.getElementById('clockButton').classList.remove('bg-yellow-400');
+                        document.getElementById('clockButton').classList.add('bg-red-400');
+                        document.getElementById('timeElapsed').classList.remove('hidden');
+                        startTime = new Date();
+                        timer = setInterval(updateTimeElapsed, 1000);
+                    }
+                } else {
+                    const errorData = JSON.parse(xhr.responseText);
+                    alert(errorData.error || 'An error occurred. Please try again.');
+                }
+            };
+
+            xhr.onerror = function () {
+                alert('Network error. Please try again.');
+            };
+
+            xhr.send();
+        });
+
+        // Function to check attendance status
+        function checkAttendanceStatus() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/dashboard/attendance-status', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+
+                    if (data.isClockedIn) {
+                        // User is already clocked in
+                        document.getElementById('clockButton').textContent = 'Clock Out';
+                        document.getElementById('clockButton').classList.remove('bg-yellow-400');
+                        document.getElementById('clockButton').classList.add('bg-red-400');
+                        document.getElementById('timeElapsed').classList.remove('hidden');
+
+                        // Start the timer
+                        startTime = new Date(data.session.clock_in);
+                        timer = setInterval(updateTimeElapsed, 1000);
+                    } else {
+                        // User is not clocked in
+                        document.getElementById('clockButton').textContent = 'Click to Clock In';
+                        document.getElementById('clockButton').classList.remove('bg-red-400');
+                        document.getElementById('clockButton').classList.add('bg-yellow-400');
+                        document.getElementById('timeElapsed').classList.add('hidden');
+                    }
+                } else {
+                    console.error('Error checking attendance status:', xhr.statusText);
+                }
+            };
+
+            xhr.onerror = function () {
+                console.error('Network error while checking attendance status');
+            };
+
+            xhr.send();
+        }
+
+        // Call the function when the page loads
+        checkAttendanceStatus();
+
+        document.getElementById('request-leave').addEventListener('click', function () {
+            // Redirect to a new page
+            window.location.href = '/leave/apply';
+        });
+</script>
                 <!-- Announcements Section -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">

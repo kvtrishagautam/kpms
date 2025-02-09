@@ -7,7 +7,7 @@ const dashboardController = {
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', req.session.user.id)
+                .eq('id', req.session.user)
                 .single();
 
             if (profileError) {
@@ -27,28 +27,28 @@ const dashboardController = {
             }
 
             // Get tasks
-            const { data: tasks, error: tasksError } = await supabase
-                .from('tasks')
-                .select('*')
-                .eq('assigned_to', req.session.user.id)
-                .eq('completed', false)
-                .order('due_date', { ascending: true })
-                .limit(4);
+            // const { data: tasks, error: tasksError } = await supabase
+            //     .from('tasks')
+            //     .select('*')
+            //     .eq('assigned_to', req.session.user.id)
+            //     .eq('completed', false)
+            //     .order('due_date', { ascending: true })
+            //     .limit(4);
 
-            if (tasksError) {
-                console.error('Error fetching tasks:', tasksError);
-            }
+            // if (tasksError) {
+            //     console.error('Error fetching tasks:', tasksError);
+            // }
 
             // Get leave balance
-            const { data: leaveBalance, error: leaveError } = await supabase
-                .from('leave_balance')
-                .select('*')
-                .eq('user_id', req.session.user.id)
-                .single();
+            // const { data: leaveBalance, error: leaveError } = await supabase
+            //     .from('leave_balance')
+            //     .select('*')
+            //     .eq('user_id', req.session.user.id)
+            //     .single();
 
-            if (leaveError) {
-                console.error('Error fetching leave balance:', leaveError);
-            }
+            // if (leaveError) {
+            //     console.error('Error fetching leave balance:', leaveError);
+            // }
 
             res.render('dashboard', {
                 user: {
@@ -56,12 +56,12 @@ const dashboardController = {
                     profile
                 },
                 announcements: announcements || [],
-                tasks: tasks || [],
-                leaveBalance: leaveBalance || {
-                    annual_leave: 0,
-                    sick_leave: 0,
-                    casual_leave: 0
-                }
+                // tasks: tasks || [],
+                // leaveBalance: leaveBalance || {
+                //     annual_leave: 0,
+                //     sick_leave: 0,
+                //     casual_leave: 0
+                // }
             });
 
         } catch (error) {
@@ -69,44 +69,107 @@ const dashboardController = {
             res.redirect('/login');
         }
     },
-
     clockIn: async (req, res) => {
         try {
-            const { error } = await supabase
+            const userId = req.session.user; // Assuming you have middleware to attach the user to the request
+    
+            // Insert a new clock-in record
+            const { data, error } = await supabase
                 .from('attendance')
-                .insert({
-                    user_id: req.session.user.id,
-                    clock_in: new Date().toISOString(),
-                    status: 'present'
-                });
-
-            if (error) throw error;
-
-            res.json({ success: true });
+                .insert([{ user_id: userId, clock_in: new Date().toISOString() }]);
+    
+            if (error) {
+                throw error;
+            }
+    
+            res.status(200).json({ message: 'Clocked in successfully' });
         } catch (error) {
-            console.error('Clock-in error:', error);
-            res.status(500).json({ error: 'Failed to clock in' });
+            console.error('Error clocking in:', error);
+            res.status(500).json({ error: 'An error occurred while clocking in' });
         }
     },
-
-    updateTaskStatus: async (req, res) => {
-        const { taskId, completed } = req.body;
-
+    clockOut: async (req, res) => {
         try {
-            const { error } = await supabase
-                .from('tasks')
-                .update({ completed })
-                .eq('id', taskId)
-                .eq('assigned_to', req.session.user.id);
-
-            if (error) throw error;
-
-            res.json({ success: true });
+            const userId = req.session.user; // Assuming you have middleware to attach the user to the request
+    
+            // Get the most recent clock-in record
+            const { data: clockInRecord, error: fetchError } = await supabase
+                .from('attendance')
+                .select('clock_in')
+                .eq('user_id', userId)
+                .is('clock_out', null) // Check if clock_out is NULL
+                .order('clock_in', { ascending: false }) // Get the most recent record
+                .limit(1);
+    
+            if (fetchError) {
+                throw fetchError;
+            }
+    
+            if (clockInRecord.length === 0) {
+                return res.status(400).json({ error: 'No active clock-in record found' });
+            }
+    
+            const clockInTime = new Date(clockInRecord[0].clock_in);
+            const clockOutTime = new Date();
+    
+            // Calculate total duration in hours
+            const totalDuration = ((clockOutTime - clockInTime) / (1000 * 60 * 60)).toFixed(2);
+    
+            // Update the clock-out time and total duration
+            const { error: updateError } = await supabase
+                .from('attendance')
+                .update({ clock_out: clockOutTime.toISOString(), total_hours: totalDuration })
+                .eq('user_id', userId)
+                .is('clock_out', null);
+    
+            if (updateError) {
+                throw updateError;
+            }
+    
+            res.status(200).json({ message: 'Clocked out successfully', hoursWorked: totalDuration });
         } catch (error) {
-            console.error('Task update error:', error);
-            res.status(500).json({ error: 'Failed to update task' });
+            console.error('Error clocking out:', error);
+            res.status(500).json({ error: 'An error occurred while clocking out' });
+        }
+    },
+    getAttendanceStatus: async (req, res) => {
+        try {
+            const userId = req.session.user; // Assuming you have middleware to attach the user to the request
+    
+            // Query the database to check if the user is currently clocked in
+            const { data, error } = await supabase
+                .from('attendance')
+                .select('clock_in')
+                .eq('user_id', userId)
+                .is('clock_out', null) // Check if clock_out is NULL
+                .order('clock_in', { ascending: false }) // Get the most recent record
+                .limit(1);
+    
+            if (error) {
+                throw error;
+            }
+    
+            if (data.length > 0) {
+                // User is clocked in
+                res.status(200).json({
+                    isClockedIn: true,
+                    session: {
+                        clock_in: data[0].clock_in, // The time the user clocked in
+                    },
+                });
+            } else {
+                // User is not clocked in
+                res.status(200).json({
+                    isClockedIn: false,
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching attendance status:', error);
+            res.status(500).json({ error: 'An error occurred while fetching attendance status' });
         }
     }
-};
+    
+
+    };
 
 module.exports = dashboardController;

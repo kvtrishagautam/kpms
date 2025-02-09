@@ -9,6 +9,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
 
 // Middleware
 app.set('view engine', 'ejs');
@@ -25,6 +26,7 @@ app.use(session({
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/', dashboardRoutes)
+app.use('/leave', leaveRoutes)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

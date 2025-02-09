@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/stylesheets/mainmenu.css" />
+    <link rel="stylesheet" href="/stylesheets/admdash.css">
+    <link rel="stylesheet" href="/stylesheets/navbar.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Alatsi&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Actor&display=swap" rel="stylesheet">
+    <title>Admin dashboard</title>
+</head>
+
+<body>
+    
+    <div class="all-noti">
+        <%for(let each of s_events){ %>
+            <%for (let pending of each){ %>
+                <div class="notification">
+                    <div class="noti-content">
+                        <div class="notification-title"><span>Request for approval:</span></div>
+                        <div class="notification-details"><span>New event:</span></div>
+                        <div class="event_name"><span>
+                                <%=pending.title%>
+                            </span></div>
+                    </div>
+                    <div class="button-group">
+                        <a class="view-btn"
+                            href="/admin/events/<%=pending.title %>/<%=pending.event_id %>">View</a>
+                        <div class="noti-approve">
+                            <span>Approve Request</span>
+                            <img class="reject" data-event-id="<%=pending.event_id%>" data-action="rejected"
+                                src="/images/admin/cross-svgrepo-com.svg" alt="reject">
+                            <img class="approve" data-event-id="<%=pending.event_id%>" data-action="approved"
+                                src="/images/admin/tick-svgrepo-com.svg" alt="approve">
+                        </div>
+                    </div>
+                </div>
+                <%}}%>
+
+    </div>
+    </body>
+
+</html>

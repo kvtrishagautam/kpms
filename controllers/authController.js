@@ -79,10 +79,16 @@ login: async (req, res) => {
               error: 'Invalid email or password' 
           });
       }
-
-      // If successful, store user in session and redirect to dashboard
-      req.session.user = user;
-      res.redirect('/');
+      if(user.role=='superior'){
+        req.session.user = user.id;
+        res.redirect('admin/dashboard');
+      }
+      else if(user.role=='officer'){
+        req.session.user = user.id;
+        res.redirect('/');
+      }
+     
+      
 
   } catch (err) {
       // Handle unexpected errors
@@ -102,7 +108,17 @@ login: async (req, res) => {
         } catch (error) {
             res.redirect('/dashboard');
         }
-    }
-};
+    },
+    adminDashboard:async (req, res) => {
+      const { data, error } = await supabase
+    .from('leave_applications')
+    .select('user_id')
+    .eq('status', 'pending');
+    console.log(data)
+    
+  res.render('admin/dashboard', { leaves: data});
+}
+
+  }
 
 module.exports = authController;
