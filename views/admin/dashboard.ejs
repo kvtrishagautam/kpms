@@ -1,49 +1,75 @@
+<!-- views/admin/dashboard.ejs -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/stylesheets/mainmenu.css" />
-    <link rel="stylesheet" href="/stylesheets/admdash.css">
-    <link rel="stylesheet" href="/stylesheets/navbar.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
-    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Alatsi&display=swap" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Actor&display=swap" rel="stylesheet">
-    <title>Admin dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .approve-btn, .reject-btn {
+            padding: 5px 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .approve-btn {
+            background-color: green;
+        }
+        .reject-btn {
+            background-color: red;
+        }
+    </style>
 </head>
-
 <body>
-    
-    <div class="all-noti">
-        <%for(let each of s_events){ %>
-            <%for (let pending of each){ %>
-                <div class="notification">
-                    <div class="noti-content">
-                        <div class="notification-title"><span>Request for approval:</span></div>
-                        <div class="notification-details"><span>New event:</span></div>
-                        <div class="event_name"><span>
-                                <%=pending.title%>
-                            </span></div>
-                    </div>
-                    <div class="button-group">
-                        <a class="view-btn"
-                            href="/admin/events/<%=pending.title %>/<%=pending.event_id %>">View</a>
-                        <div class="noti-approve">
-                            <span>Approve Request</span>
-                            <img class="reject" data-event-id="<%=pending.event_id%>" data-action="rejected"
-                                src="/images/admin/cross-svgrepo-com.svg" alt="reject">
-                            <img class="approve" data-event-id="<%=pending.event_id%>" data-action="approved"
-                                src="/images/admin/tick-svgrepo-com.svg" alt="approve">
-                        </div>
-                    </div>
-                </div>
-                <%}}%>
-
-    </div>
-    </body>
-
+    <h1>Leave Applications</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Start Day</th>
+                <th>End Day</th>
+                <th>Reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% leaves.forEach(leave => { %>
+                <tr>
+                    <td><%= leave.user_id %></td>
+                    <td><%= leave.profiles.first_name %></td>
+                    <td><%= leave.start_day %></td>
+                    <td><%= leave.end_day %></td>
+                    <td><%= leave.reason %></td>
+                    <td class="action-buttons">
+                        <form action="/approve-leave" method="POST" style="display:inline;">
+                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
+                            <button type="submit" class="approve-btn">Approve</button>
+                        </form>
+                        <form action="/reject-leave" method="POST" style="display:inline;">
+                            <input type="hidden" name="leave_id" value="<%= leave.user_id %>">
+                            <button type="submit" class="reject-btn">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</body>
 </html>
